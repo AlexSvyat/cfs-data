@@ -1,10 +1,14 @@
 import React from "react";
+import { Spinner } from "react-bootstrap";
 
 const Loading = () => (
   <tbody>
     <tr>
       <td>
-        <h3>Loading ...</h3>
+        <Spinner animation="border" role="status">
+          <span className="sr-only">Loading...</span>
+        </Spinner>
+        Loading ...
       </td>
     </tr>
   </tbody>

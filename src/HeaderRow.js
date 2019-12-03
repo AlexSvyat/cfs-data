@@ -1,16 +1,12 @@
 import React from "react";
 
 const HeaderRow = () => (
-  <tbody>
+  <thead>
     <tr>
-      <td>
-        <h3>Text:</h3>
-      </td>
-      <td>
-        <h3>Type:</h3>
-      </td>
+      <th>Text:</th>
+      <th>Type:</th>
     </tr>
-  </tbody>
+  </thead>
 );
 
 export default HeaderRow;
