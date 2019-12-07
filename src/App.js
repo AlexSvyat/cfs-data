@@ -11,6 +11,7 @@ import {
   Form,
   FormControl
 } from "react-bootstrap";
+import { sampleSize } from "lodash";
 
 class App extends React.Component {
   constructor(props) {
@@ -30,41 +31,42 @@ class App extends React.Component {
   loadAllFacts() {
     this.setState({ loading: true });
 
-    this.fetchData(
-      "https://cat-fact.herokuapp.com/facts?animal_type=cat"
-    ).then(fetchedData =>
-      this.setState({ allCfsData: fetchedData.all, loading: false })
-    );
+    this.fetchData("https://cat-fact.herokuapp.com/facts?animal_type=cat")
+      .then(fetchedData =>
+        this.setState({ allCfsData: fetchedData.all, loading: false })
+      )
+      .then(this.load20RandomFacts);
   }
 
   // Will load only 20 random data facts from the API
   load20RandomFacts() {
     this.setState({ loading: true });
 
-    this.fetchData(
-      "https://cat-fact.herokuapp.com/facts/random?animal_type=cat&amount=20"
-    ).then(filteredCfsData =>
-      this.setState({ filteredCfsData, loading: false })
-    );
+    // Using Lodash SampleSize method to get 20 random items
+    let newRandomArray = sampleSize(this.state.allCfsData, 20);
+
+    this.setState({ filteredCfsData: newRandomArray, loading: false });
   }
 
   // Initial Component Mounting method
   componentDidMount() {
-    this.load20RandomFacts();
     this.loadAllFacts();
   }
 
   // Handles Search Submit request
   handleSearchSubmit(event) {
+    event.preventDefault();
+    this.setState({ loading: true });
+
     let filterValue = event.target.elements.formSearchValue.value;
 
     // Filter out all the previously fetched data
     let filteredData = this.state.allCfsData.filter(function(rec) {
       return rec.text.toLowerCase().includes(filterValue.toLowerCase());
     });
-
     this.setState({
-      filteredCfsData: filteredData
+      filteredCfsData: filteredData,
+      loading: false
     });
   }
 
@@ -110,34 +112,32 @@ class App extends React.Component {
       <div>
         <Navbar bg="light" expand="lg">
           <Navbar.Brand href="#home">CFS Data</Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="mr-auto">
-              <Nav.Link href="#home">
-                <Button
+
+          <Nav className="mr-auto">
+            <Nav.Link href="#home">
+              <Button
+                size="sm"
+                variant="outline-success"
+                disabled={this.state.loading}
+                onClick={this.load20RandomFacts}
+              >
+                {this.renderIcon()}
+              </Button>
+            </Nav.Link>
+            <Form inline onSubmit={e => this.handleSearchSubmit(e)}>
+              <Form.Group controlId="formSearchValue">
+                <FormControl
                   size="sm"
-                  variant="outline-success"
-                  disabled={this.state.loading}
-                  onClick={this.load20RandomFacts}
-                >
-                  {this.renderIcon()}
+                  type="text"
+                  placeholder="Search"
+                  className="mr-sm-2"
+                />
+                <Button size="sm" variant="outline-success" type="submit">
+                  Search
                 </Button>
-              </Nav.Link>
-              <Form inline onSubmit={e => this.handleSearchSubmit(e)}>
-                <Form.Group controlId="formSearchValue">
-                  <FormControl
-                    size="sm"
-                    type="text"
-                    placeholder="Search"
-                    className="mr-sm-2"
-                  />
-                  <Button size="sm" variant="outline-success" type="submit">
-                    Search
-                  </Button>
-                </Form.Group>
-              </Form>
-            </Nav>
-          </Navbar.Collapse>
+              </Form.Group>
+            </Form>
+          </Nav>
         </Navbar>
 
         <Table striped hover size="sm">
